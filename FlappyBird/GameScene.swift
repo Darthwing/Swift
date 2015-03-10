@@ -23,15 +23,18 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     let gapGroup:UInt32 = 0 << 3
     var gameOver = 0
     var objects = SKNode()
+    var gaps = SKNode()
     var spawn = NSTimer()
     var score = 0
     var label = SKLabelNode()
+    var label2 = SKLabelNode()
     var i = 0
     
     override func didMoveToView(view: SKView) {
         self.physicsWorld.gravity = CGVectorMake(0, -7)
         self.physicsWorld.contactDelegate = self
         self.addChild(objects)
+        self.addChild(gaps)
         
         
         
@@ -39,8 +42,8 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         
         
         
-        /*_________________________________________________________________________
-                        Background*/
+        //_________________________________________________________________________
+         //           MARK:    Background
         
         
 
@@ -63,15 +66,23 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         objects.addChild(bg)
         }
         //_______________________________________________________________________
-        //             Pipes
+        //       MARK:           Pipes
         
 
         spawn = NSTimer.scheduledTimerWithTimeInterval(3, target: self, selector: "result", userInfo: nil, repeats: true)
         
-       
+       //____________________________________________________________________________________
+        // MARK: lable
+        
+       label.fontName = "Baskerville"
+        label.text = "0"
+        label.fontSize = 60
+        label.position = CGPoint(x: CGRectGetMidX(self.frame), y: CGRectGetMidY(self.frame) + self.frame.size.height / 4)
+        label.zPosition = 11
+        self.addChild(label)
        
         //_____________________________________________________________________
-        //              Bird
+        // MARK:             Bird
         
         
         
@@ -87,7 +98,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
             bird.runAction(makeBirdFlap)
         
         //______________________________________________________________________
-        //              Bird Physics
+        //      MARK:        Bird Physics
         
             bird.physicsBody = SKPhysicsBody (rectangleOfSize:CGSizeMake(40, 70))
             bird.physicsBody?.dynamic = true
@@ -97,8 +108,8 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
             bird.physicsBody?.collisionBitMask = gapGroup
             bird.zPosition = 10
             self.addChild(bird)
-        /*__________________________________________________________________________
-            Ground Collision   */
+        //__________________________________________________________________________
+         //  MARK:   Ground Collision
         
         var ground = SKNode()
             ground.position = CGPointMake(0,0)
@@ -119,11 +130,32 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     
     func didBeginContact(contact: SKPhysicsContact) {
         
+        if contact.bodyA.categoryBitMask == gapGroup || contact.bodyB.categoryBitMask == gapGroup{
+        score++
+        label.text = String(score)
         
-
-        gameOver = 1
         
-            objects.speed = 0}
+        
+        }
+        
+        else{gameOver = 1
+            objects.speed = 0
+            gaps.speed = 0
+            
+            label2.fontName = "Baskerville"
+            label2.text = "Touch screen to restart."
+            label2.fontSize = 30
+            label2.position = CGPoint(x: CGRectGetMidX(self.frame), y: CGRectGetMidY(self.frame))
+            label2.zPosition = 12
+            self.addChild(label2)
+        
+        
+        
+        
+        }
+            
+        
+    }
         
     
     func result(){
@@ -157,11 +189,14 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
                     pipeDown.physicsBody?.dynamic = false
             
         var gap = SKNode()
-            gap.position = CGPoint(x: CGRectGetMaxX(self.frame), y: CGRectGetMidY(self.frame) + pipeOffSet)
+            gap.position = CGPoint(x: CGRectGetMaxX(self.frame) + (pipeUp.size.width/2), y: CGRectGetMidY(self.frame) + pipeOffSet)
+            gap.physicsBody = SKPhysicsBody(rectangleOfSize:CGSizeMake(1, gapHeight))
             gap.runAction(moveAndRemovePipes)
             gap.physicsBody?.dynamic = false
             gap.physicsBody?.collisionBitMask = gapGroup
-            objects.addChild(gap)
+            gap.physicsBody?.categoryBitMask = gapGroup
+            gap.physicsBody?.contactTestBitMask = birdGroup
+            gaps.addChild(gap)
             
             
         
