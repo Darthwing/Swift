@@ -28,6 +28,8 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     var score = 0
     var label = SKLabelNode()
     var label2 = SKLabelNode()
+    
+    var labelHold = SKLabelNode()
     var i = 0
     
     override func didMoveToView(view: SKView) {
@@ -35,37 +37,15 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         self.physicsWorld.contactDelegate = self
         self.addChild(objects)
         self.addChild(gaps)
+        self.addChild(labelHold)
+        background()
         
         
         
         
         
         
-        
-        //_________________________________________________________________________
-         //           MARK:    Background
-        
-        
-
-            var movebg = SKAction.moveByX(-bgTexture.size().width, y: 0, duration: 9)
-        
-            var replacebg = SKAction.moveByX(bgTexture.size().width, y: 0, duration: 0)
-        
-            var movebgForever = SKAction.repeatActionForever(SKAction.sequence([movebg, replacebg]))
-        
-        for var i:CGFloat=0; i<3; i++ {
-        
-            bg = SKSpriteNode(texture: bgTexture)
-        
-            bg.position = CGPoint(x: bgTexture.size().width/2+bgTexture.size().width*i, y: CGRectGetMidY(self.frame))
-            
-            bg.size.height = self.frame.height
-            
-            
-            bg.runAction(movebgForever)
-        objects.addChild(bg)
-        }
-        //_______________________________________________________________________
+               //_______________________________________________________________________
         //       MARK:           Pipes
         
 
@@ -74,10 +54,12 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
        //____________________________________________________________________________________
         // MARK: lable
         
-       label.fontName = "Baskerville"
+        
+        label.fontColor = SKColor.blackColor()
+        label.fontName = "Baskerville"
         label.text = "0"
         label.fontSize = 60
-        label.position = CGPoint(x: CGRectGetMidX(self.frame), y: CGRectGetMidY(self.frame) + self.frame.size.height / 4)
+        label.position = CGPoint(x: CGRectGetMidX(self.frame), y: CGRectGetMidY(self.frame) + self.frame.size.height / 3)
         label.zPosition = 11
         self.addChild(label)
        
@@ -127,6 +109,8 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     }
     
     
+    func moveBG(){}
+    
     
     func didBeginContact(contact: SKPhysicsContact) {
         
@@ -138,18 +122,20 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         
         }
         
-        else{gameOver = 1
+        else{
+            if gameOver == 0{
+                gameOver = 1
             objects.speed = 0
             gaps.speed = 0
-            
             label2.fontName = "Baskerville"
+            label2.fontColor = SKColor.blackColor()
             label2.text = "Touch screen to restart."
             label2.fontSize = 30
             label2.position = CGPoint(x: CGRectGetMidX(self.frame), y: CGRectGetMidY(self.frame))
             label2.zPosition = 12
-            self.addChild(label2)
+            labelHold.addChild(label2)
         
-        
+            }
         
         
         }
@@ -157,7 +143,36 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         
     }
         
+    func background(){
     
+        //_________________________________________________________________________
+        //           MARK:    Background
+        
+        
+        
+        var movebg = SKAction.moveByX(-bgTexture.size().width, y: 0, duration: 9)
+        
+        var replacebg = SKAction.moveByX(bgTexture.size().width, y: 0, duration: 0)
+        
+        var movebgForever = SKAction.repeatActionForever(SKAction.sequence([movebg, replacebg]))
+        
+        for var i:CGFloat=0; i<3; i++ {
+            
+            bg = SKSpriteNode(texture: bgTexture)
+            
+            bg.position = CGPoint(x: bgTexture.size().width/2+bgTexture.size().width*i, y: CGRectGetMidY(self.frame))
+            
+            bg.size.height = self.frame.height
+            
+            
+            bg.runAction(movebgForever)
+            objects.addChild(bg)
+        }
+
+    
+    
+    
+    }
     func result(){
         if gameOver == 0{
         var pipeUpTexture = SKTexture(imageNamed:"img/pipe2.png")
@@ -219,6 +234,22 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         if gameOver == 0{
         bird.physicsBody?.velocity = CGVectorMake(0, 0)
             bird.physicsBody?.applyImpulse(CGVectorMake(0, 55))}
+        else{
+            score = 0
+            label.text = "0"
+            gaps.removeAllChildren()
+            objects.removeAllChildren()
+            background()
+            bird.position = CGPoint(x: CGRectGetMidX(self.frame), y: CGRectGetMidY(self.frame))
+            labelHold.removeAllChildren()
+            bird.physicsBody?.velocity = CGVectorMake(0, 0)
+            bird.physicsBody?.applyImpulse(CGVectorMake(0, 55))
+            gameOver = 0
+            objects.speed = 1
+            gaps.speed = 1
+
+        
+        }
         
     }
    
